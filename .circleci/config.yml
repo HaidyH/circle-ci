@@ -238,10 +238,6 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["d9:8d:ec:d0:bc:6e:2f:af:d2:2c:ec:31:dc:2c:49:18"]
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-      - run:
           name: Configure server
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
