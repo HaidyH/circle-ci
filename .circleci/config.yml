@@ -237,7 +237,6 @@ jobs:
       - checkout
       - install_ansible
       - install_awscli
-      - install_
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
