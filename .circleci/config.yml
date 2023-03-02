@@ -227,6 +227,9 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       # - destroy-environment     
 
+
+
+#ansible cofigration
   configure-infrastructure:
     docker:
       - image: cimg/base:stable
@@ -241,6 +244,7 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
+            cat inventory.txt 
             ansible-playbook -i inventory.txt configure-server.yml
       # - destroy-environment
 
