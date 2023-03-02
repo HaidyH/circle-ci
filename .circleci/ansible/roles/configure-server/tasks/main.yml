@@ -1,5 +1,14 @@
 ---
 
+
+
+
+- name: "Install curl"
+  become: true
+  apt:
+    name: ["curl"]
+
+
 - name: "Add Node.js"
   become: true
   shell: |

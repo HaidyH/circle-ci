@@ -59,7 +59,9 @@ commands:
             aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
 
-  revert-migrations: #this steps  for create migrations 
+
+#this steps revert migrations 
+  revert-migrations: 
     description: Revert the last migration
     parameters:
       Workflow_ID:
