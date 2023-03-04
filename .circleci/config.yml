@@ -395,20 +395,19 @@ jobs:
           name: Backend smoke test.
           command: |
 
-            BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
+            export BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
 
             export API_URL=http://${BACKEND_PUBLIC_IP}:3030 
 
-            
+            echo "backend url" 
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" 
 
             if curl -s "${API_URL}/api/status" | grep "ok"
             then
-                echo "Backend Success, but this is intentional error"
+                echo "Backend Success"
                 exist 0
             else
                 echo "Backend Fail!"
@@ -425,8 +424,8 @@ jobs:
             else
               exit 1
             fi 
-      - destroy-environment 
-      - revert-migrations
+      # - destroy-environment 
+      # - revert-migrations
 
   cloudfront-update:
     docker:
