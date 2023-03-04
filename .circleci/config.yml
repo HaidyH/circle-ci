@@ -153,6 +153,8 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
             npm run test
       - notify_on_failure
 
@@ -169,6 +171,8 @@ jobs:
           command: |
             cd frontend
             npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
       - notify_on_failure
             
   scan-backend:
@@ -312,7 +316,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            tar -czvf artifact.tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
 
@@ -344,22 +348,26 @@ jobs:
           command: |
             cd backend
             npm run build
-            tar -czvf artifact.tar.gz dist/* package*
             cd .. 
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
-            
-      - run:
-          name: Deploy backend
-          command: |
-            cd backend
-            export TYPEORM_MIGRATIONS_DIR=./src/migrations 
-            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.{.ts,.js}
-            export TYPEORM_MIGRATIONS=./src/migrations/*.ts 
-            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             cd .circleci/ansible
             echo "Contents  of the inventory file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
+            
+      # - run:
+      #     name: Deploy backend
+      #     command: |
+      #       cd backend
+      #       export TYPEORM_MIGRATIONS_DIR=./src/migrations 
+      #       export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.{.ts,.js}
+      #       export TYPEORM_MIGRATIONS=./src/migrations/*.ts 
+      #       cd ..
+      #       cd .circleci/ansible
+
+      #       ansible-playbook -i inventory.txt deploy-backend.yml
             
       - destroy-environment   
       - revert-migrations  
