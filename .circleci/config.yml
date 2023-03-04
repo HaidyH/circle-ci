@@ -30,8 +30,8 @@ commands:
       - run:
           name: install Ansible
           command: | 
-            sudo apt update
-            sudo apt install software-properties-common
+            sudo apt update 
+            sudo apt install software-properties-common -y
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible -y
 
@@ -288,6 +288,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      - install_ansible
       - install_nodejs
       - restore_cache:
           keys: [frontend-deps]
@@ -314,7 +315,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-haidy --recursive
       - destroy-environment
 
 
@@ -352,9 +353,11 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd backend
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations 
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.{.ts,.js}
+            export TYPEORM_MIGRATIONS=./src/migrations/*.ts 
+            cd ..
             cd .circleci/ansible
             echo "Contents  of the inventory file is -------"
             cat inventory.txt
@@ -525,8 +528,9 @@ workflows:
       - deploy-backend:
           requires: [run-migrations]
 
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+          
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
