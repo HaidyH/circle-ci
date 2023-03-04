@@ -89,7 +89,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -108,7 +108,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -126,7 +126,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -143,7 +143,7 @@ jobs:
                 
   test-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -153,15 +153,13 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
             npm run test
       - notify_on_failure
 
             
   scan-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -177,7 +175,7 @@ jobs:
             
   scan-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -194,7 +192,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/base:stable
+      - image: amazon/aws-cli
       
     steps:
       - checkout
@@ -236,7 +234,7 @@ jobs:
 #ansible cofigration
   configure-infrastructure:
     docker:
-      - image: cimg/base:stable
+      - image: amazon/aws-cli
     steps:
       - checkout
       - install_ansible
@@ -257,7 +255,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -285,7 +283,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -326,7 +324,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -348,9 +346,10 @@ jobs:
           command: |
             cd backend
             npm run build
-            tar -czvf artifact.tar.gz dist/* package*
-            cd .. 
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             
       - run:
           name: Deploy backend
@@ -370,7 +369,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: 'cimg/base:stable'
+      - image: 'amazon/aws-cli'
     steps:
       - checkout
       - install_awscli
@@ -414,7 +413,7 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: 'cimg/base:stable'
+      - image: 'amazon/aws-cli'
     steps:
       - checkout
       - run:
@@ -487,7 +486,7 @@ jobs:
 
   notify_on_success:
     docker:
-      - image: 'cimg/base:stable'
+      - image: 'amazon/aws-cli'
     steps:
       - slack/notify:
           event: pass
