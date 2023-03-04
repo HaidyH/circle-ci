@@ -153,6 +153,8 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
             npm run test
       - notify_on_failure
 
@@ -324,35 +326,47 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.16
+      - image: cimg/base:stable
     steps:
       - checkout
-      - add_ssh_keys:
-            fingerprints: ["96:9f:69:bf:88:57:05:8e:52:1a:07:e4:4a:f7:9f:f5"]
+      - install_awscli
+      - install_ansible
+      - install_nodejs
       - attach_workspace:
           at: ~/
+      - add_ssh_keys:
+          fingerprints: ["d9:8d:ec:d0:bc:6e:2f:af:d2:2c:ec:31:dc:2c:49:18"]
       - restore_cache:
           keys: [backend-deps]
       - run:
-            name: Install Dependencies
-            command: |
-              apk add --update --no-cache tar gzip nodejs npm aws-cli curl ansible
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: Package backend
+          command: |
+            cd backend
+            npm run build
+            tar -czvf artifact.tar.gz dist/* package*
+            cd .. 
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            
       - run:
           name: Deploy backend
           command: |
             cd backend
-            npm install
-            npm run build
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations 
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.{.ts,.js}
+            export TYPEORM_MIGRATIONS=./src/migrations/*.ts 
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
-            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             cd .circleci/ansible
+            echo "Contents  of the inventory file is -------"
+            cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment
-      - revert-migrations
-
-
+            
+      - destroy-environment   
+      - revert-migrations  
 
   smoke-test:
     docker:
