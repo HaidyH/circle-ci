@@ -196,7 +196,6 @@ jobs:
       
     steps:
       - checkout
-      - install_awscli
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -238,7 +237,6 @@ jobs:
     steps:
       - checkout
       - install_ansible
-      - install_awscli
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
@@ -288,7 +286,6 @@ jobs:
       - checkout
       - install_awscli
       - install_ansible
-      - install_nodejs
       - restore_cache:
           keys: [frontend-deps]
       - run:
@@ -329,7 +326,6 @@ jobs:
       - checkout
       - install_awscli
       - install_ansible
-      - install_nodejs
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
@@ -372,7 +368,6 @@ jobs:
       - image: 'amazon/aws-cli'
     steps:
       - checkout
-      - install_awscli
       - install_ansible
       - install_nodejs
       - run:
