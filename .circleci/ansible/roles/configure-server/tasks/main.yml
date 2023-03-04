@@ -1,8 +1,4 @@
 ---
-
-
-
-
 - name: "Install curl"
   become: true
   apt:
