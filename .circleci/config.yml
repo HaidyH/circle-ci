@@ -234,9 +234,10 @@ jobs:
 #ansible cofigration
   configure-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_awscli
       - install_ansible
       - attach_workspace:
           at: ~/
